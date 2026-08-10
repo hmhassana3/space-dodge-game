@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>SPACE DODGE 🚀 - Free Space Arcade Game</title>
+<meta name="description" content="Play Space Dodge, a fast and challenging browser arcade game. Battle through 10 unique sectors, dodge hazards, defeat bosses, unlock ships and beat your high score.">
+<meta name="theme-color" content="#05060f">
+<meta name="color-scheme" content="dark">
+
+<meta property="og:title" content="SPACE DODGE 🚀 - Free Space Arcade Game">
+<meta property="og:description" content="Battle through 10 unique sectors, defeat bosses, unlock ships and beat your high score in this free browser arcade game.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="favicon.svg">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23070a1a'/%3E%3Ccircle cx='50' cy='50' r='34' fill='%2312163a'/%3E%3Cpath d='M50 20 L64 62 L50 52 L36 62 Z' fill='%2300e5ff'/%3E%3Ccircle cx='50' cy='34' r='6' fill='%23ff2fd0'/%3E%3C/svg%3E">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= LOADING SCREEN ================= -->
+<div id="screen-loading" class="screen active">
+  <div class="stars-bg"></div>
+  <div class="loading-wrap">
+    <div class="logo-glow">SPACE DODGE <span class="rocket">🚀</span></div>
+    <div class="loading-bar-track">
+      <div class="loading-bar-fill" id="loadingFill"></div>
+    </div>
+    <div class="loading-tip" id="loadingTip">Calibrating thrusters…</div>
+  </div>
+</div>
+
+<!-- ================= MAIN MENU ================= -->
+<div id="screen-menu" class="screen">
+  <div class="stars-bg"></div>
+  <div class="nebula"></div>
+  <canvas id="menuShipCanvas" class="menu-ship-canvas"></canvas>
+  <div class="menu-wrap glass-panel">
+    <h1 class="game-title">SPACE DODGE <span class="rocket">🚀</span></h1>
+    <p class="game-subtitle">10 sectors. 2 bosses. Your ship, your legend.</p>
+    <div class="menu-buttons">
+      <button class="btn btn-primary" id="btnContinue">▶ CONTINUE</button>
+      <button class="btn btn-secondary" id="btnLevelSelect">🌌 LEVEL SELECT</button>
+      <button class="btn btn-secondary" id="btnShipSelect">🚀 SHIP SELECT</button>
+      <button class="btn btn-secondary" id="btnHowTo">📖 HOW TO PLAY</button>
+      <button class="btn btn-secondary" id="btnHighScores">🏆 HIGH SCORES</button>
+      <button class="btn btn-secondary" id="btnSettings">⚙ SETTINGS</button>
+    </div>
+    <button id="soundToggleMenu" class="icon-toggle" title="Toggle sound">🔊</button>
+  </div>
+  <div class="ad-slot" id="adSlotMenu">
+    <div class="ad-label">Advertisement</div>
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-2733473358845322"
+      data-ad-slot="0000000000"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+  </div>
+</div>
+
+<!-- ================= HOW TO PLAY ================= -->
+<div id="screen-howto" class="screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel">
+    <h2 class="panel-title">📖 HOW TO PLAY</h2>
+    <div class="howto-grid">
+      <div class="howto-card"><div class="howto-icon">⌨️</div><h3>Movement</h3><p>Desktop: Arrows/WASD.<br>Mobile: drag the joystick.</p></div>
+      <div class="howto-card"><div class="howto-icon">🔫</div><h3>Shooting</h3><p>Your ship auto-fires forward. Aim by moving into position.</p></div>
+      <div class="howto-card"><div class="howto-icon">🛡</div><h3>Shield</h3><p>Space / ⚡ button for a temporary shield that blocks one hit.</p></div>
+      <div class="howto-card"><div class="howto-icon">💰</div><h3>Power-ups</h3><p>Shield, Speed, Magnet and Extra Life drift down — fly into them.</p></div>
+      <div class="howto-card"><div class="howto-icon">☄️</div><h3>Enemies</h3><p>Asteroids, meteors, drones, hunters, bombers, mines and lasers — each sector mixes different threats.</p></div>
+      <div class="howto-card"><div class="howto-icon">🌌</div><h3>Levels</h3><p>Survive each sector's timer or objective to unlock the next.</p></div>
+      <div class="howto-card"><div class="howto-icon">👑</div><h3>Bosses</h3><p>Sectors 5 and 10 end in multi-phase boss fights. Watch for attack warnings.</p></div>
+      <div class="howto-card"><div class="howto-icon">🔥</div><h3>Combo</h3><p>Chain kills and pickups without getting hit to multiply your score.</p></div>
+    </div>
+    <button class="btn btn-primary" id="btnHowToBack">⬅ BACK</button>
+  </div>
+</div>
+
+<!-- ================= WORLD SELECT ================= -->
+<div id="screen-worldselect" class="screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel">
+    <h2 class="panel-title">🌌 WORLD SELECT</h2>
+    <div class="world-grid" id="worldGrid"></div>
+    <button class="btn btn-primary" id="btnWorldSelectBack">⬅ BACK</button>
+  </div>
+</div>
+
+<!-- ================= LEVEL SELECT (campaign map for one world) ================= -->
+<div id="screen-levelselect" class="screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel">
+    <h2 class="panel-title" id="levelSelectTitle">🌌 LEVEL SELECT</h2>
+    <div class="level-map" id="levelMap"></div>
+    <div class="level-detail" id="levelDetail"></div>
+    <button class="btn btn-primary" id="btnLevelSelectBack">⬅ WORLDS</button>
+  </div>
+</div>
+
+<!-- ================= SHIP SELECT ================= -->
+<div id="screen-shipselect" class="screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel">
+    <h2 class="panel-title">🚀 SHIP SELECT</h2>
+    <div class="ship-grid" id="shipGrid"></div>
+    <button class="btn btn-primary" id="btnShipSelectBack">⬅ BACK</button>
+  </div>
+</div>
+
+<!-- ================= TUTORIAL (first-time) ================= -->
+<div id="screen-tutorial" class="screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel small-panel">
+    <h2 class="panel-title">👋 WELCOME, PILOT</h2>
+    <ol class="tutorial-list">
+      <li>Move your ship with the joystick or arrow keys / WASD.</li>
+      <li>Avoid dangerous objects — collisions cost a life.</li>
+      <li>Your ship auto-fires at destructible enemies.</li>
+      <li>Collect power-ups to gain an edge.</li>
+      <li>Survive each sector to unlock the next.</li>
+      <li>Complete sectors to unlock new sectors and ships.</li>
+    </ol>
+    <div class="menu-buttons">
+      <button class="btn btn-primary" id="btnTutorialStart">GOT IT — START</button>
+      <button class="btn btn-secondary" id="btnTutorialSkip">SKIP TUTORIAL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= HIGH SCORES ================= -->
+<div id="screen-scores" class="screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel">
+    <h2 class="panel-title">🏆 HIGH SCORES</h2>
+    <div class="score-stats">
+      <div class="stat-box"><div class="stat-label">Best Score</div><div class="stat-value" id="statBestScore">0</div></div>
+      <div class="stat-box"><div class="stat-label">Best Level</div><div class="stat-value" id="statBestLevel">1</div></div>
+      <div class="stat-box"><div class="stat-label">Total Coins</div><div class="stat-value" id="statTotalCoins">0</div></div>
+      <div class="stat-box"><div class="stat-label">Best Survival</div><div class="stat-value" id="statBestTime">0s</div></div>
+    </div>
+    <button class="btn btn-primary" id="btnScoresBack">⬅ BACK</button>
+  </div>
+</div>
+
+<!-- ================= SETTINGS ================= -->
+<div id="screen-settings" class="screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel">
+    <h2 class="panel-title">⚙ SETTINGS</h2>
+    <div class="setting-row"><span>Sound</span><div class="segmented" id="setSound"><button data-val="on" class="seg-btn">ON</button><button data-val="off" class="seg-btn">OFF</button></div></div>
+    <div class="setting-row"><span>Music</span><div class="segmented" id="setMusic"><button data-val="on" class="seg-btn">ON</button><button data-val="off" class="seg-btn">OFF</button></div></div>
+    <div class="setting-row"><span>Graphics</span><div class="segmented" id="setGraphics"><button data-val="low" class="seg-btn">LOW</button><button data-val="medium" class="seg-btn">MED</button><button data-val="high" class="seg-btn">HIGH</button></div></div>
+    <div class="setting-row"><span>Controls</span><div class="segmented" id="setControls"><button data-val="auto" class="seg-btn">AUTO</button><button data-val="touch" class="seg-btn">TOUCH</button><button data-val="keyboard" class="seg-btn">KEYS</button></div></div>
+    <button class="btn btn-danger" id="btnResetData">🗑 RESET DATA</button>
+    <button class="btn btn-primary" id="btnSettingsBack">⬅ BACK</button>
+  </div>
+</div>
+
+<!-- ================= CONFIRM RESET MODAL ================= -->
+<div id="modal-reset" class="modal-overlay">
+  <div class="modal-box glass-panel">
+    <h3>Reset all data?</h3>
+    <p>This will permanently delete your high scores, coins, unlocked ships, sector progress and settings. This cannot be undone.</p>
+    <div class="modal-buttons">
+      <button class="btn btn-secondary" id="btnResetCancel">CANCEL</button>
+      <button class="btn btn-danger" id="btnResetConfirm">DELETE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LEVEL INTRO (cinematic start) ================= -->
+<div id="screen-levelintro" class="screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel small-panel level-intro-panel">
+    <div class="li-sector" id="liSector">SECTOR 01</div>
+    <div class="li-name" id="liName">DEEP SPACE</div>
+    <div class="li-threat" id="liThreat">NEW THREAT DETECTED: ASTEROIDS</div>
+    <div class="li-objective" id="liObjective"></div>
+    <button class="btn btn-primary" id="btnStartLevel">▶ START LEVEL</button>
+  </div>
+</div>
+
+<!-- ================= GAME SCREEN ================= -->
+<div id="screen-game" class="screen">
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- HUD -->
+  <div class="hud hud-top">
+    <div class="hud-left">
+      <div class="hud-line">⭐ <span id="hudScore">000000</span></div>
+      <div class="lives" id="hudLives">❤️❤️❤️</div>
+    </div>
+    <div class="hud-center">
+      <div class="hud-level-name" id="hudLevelName">SECTOR 01 · DEEP SPACE</div>
+      <div class="progress-track"><div class="progress-fill" id="hudProgressFill"></div></div>
+      <div class="boss-health-wrap" id="bossHealthWrap">
+        <div class="boss-name" id="bossName">DREADNOUGHT</div>
+        <div class="boss-health-track"><div class="boss-health-fill" id="bossHealthFill"></div></div>
+      </div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-line">💰 <span id="hudCoins">000</span></div>
+      <button id="btnPause" class="round-btn pause-btn" title="Pause">⏸</button>
+    </div>
+  </div>
+
+  <div id="comboPopup" class="combo-popup"></div>
+  <div id="warningBanner" class="warning-banner"></div>
+
+  <div id="activePowerups" class="active-powerups"></div>
+
+  <!-- Touch Controls -->
+  <div id="touchControls" class="touch-controls">
+    <div class="joystick-zone" id="joystickZone">
+      <div class="joystick-base"><div class="joystick-stick" id="joystickStick"></div></div>
+    </div>
+    <button id="btnShieldBoost" class="round-btn action-btn" title="Shield Boost">⚡</button>
+  </div>
+</div>
+
+<!-- ================= PAUSE SCREEN ================= -->
+<div id="screen-pause" class="screen overlay-screen">
+  <div class="panel-wrap glass-panel small-panel">
+    <h2 class="panel-title">⏸ GAME PAUSED</h2>
+    <div class="menu-buttons">
+      <button class="btn btn-primary" id="btnResume">▶ RESUME</button>
+      <button class="btn btn-secondary" id="btnRestart">🔄 RESTART LEVEL</button>
+      <button class="btn btn-secondary" id="btnPauseSettings">⚙ SETTINGS</button>
+      <button class="btn btn-secondary" id="btnPauseMenu">🏠 MAIN MENU</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LEVEL COMPLETE SCREEN ================= -->
+<div id="screen-levelcomplete" class="screen overlay-screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel small-panel">
+    <h2 class="panel-title lc-title">🏁 LEVEL COMPLETE</h2>
+    <div class="lc-checks">
+      <div class="lc-check">✓ SURVIVED</div>
+      <div class="lc-check" id="lcObjectiveCheck">✓ OBJECTIVE COMPLETE</div>
+    </div>
+    <div class="go-stats" id="lcStats"></div>
+    <div class="lc-unlock" id="lcUnlock"></div>
+    <div class="menu-buttons">
+      <button class="btn btn-primary" id="btnNextLevel">▶ NEXT LEVEL</button>
+      <button class="btn btn-secondary" id="btnLevelCompleteLevels">🌌 LEVEL SELECT</button>
+      <button class="btn btn-secondary" id="btnLevelCompleteMenu">🏠 MAIN MENU</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CAMPAIGN COMPLETE SCREEN ================= -->
+<div id="screen-campaigncomplete" class="screen overlay-screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel small-panel">
+    <h2 class="panel-title cc-title">🏆 CAMPAIGN COMPLETE</h2>
+    <div class="cc-sub">70 / 70 LEVELS COMPLETED</div>
+    <div class="cc-sub cc-galaxy">THE GALAXY IS SAFE</div>
+    <div class="go-stats" id="ccStats"></div>
+    <div class="menu-buttons">
+      <button class="btn btn-primary" id="btnCcPlayAgain">🔄 PLAY AGAIN</button>
+      <button class="btn btn-secondary" id="btnCcLevels">🌌 LEVEL SELECT</button>
+      <button class="btn btn-secondary" id="btnCcShips">🚀 SHIP SELECT</button>
+      <button class="btn btn-secondary" id="btnCcMenu">🏠 MAIN MENU</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GAME OVER SCREEN ================= -->
+<div id="screen-gameover" class="screen overlay-screen">
+  <div class="stars-bg"></div>
+  <div class="panel-wrap glass-panel small-panel">
+    <h2 class="panel-title go-title">💥 GAME OVER</h2>
+    <div id="newHighScoreBanner" class="new-high-score">🏆 NEW RECORD!</div>
+    <div class="go-stats" id="goStats"></div>
+    <div class="menu-buttons">
+      <button class="btn btn-primary" id="btnPlayAgain">🔄 TRY AGAIN</button>
+      <button class="btn btn-secondary" id="btnGameOverLevels">🌌 LEVEL SELECT</button>
+      <button class="btn btn-secondary" id="btnGameOverMenu">🏠 MAIN MENU</button>
+    </div>
+  </div>
+  <div class="ad-slot" id="adSlotGameOver">
+    <div class="ad-label">Advertisement</div>
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-2733473358845322"
+      data-ad-slot="0000000000"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+  </div>
+</div>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2733473358845322"
+     crossorigin="anonymous"></script>
+<!-- Google H5 Games Ads / Ad Placement API boilerplate (official shim).
+     Requires H5 Games Ads approval on the AdSense account above; if the
+     account isn't approved or the script is blocked, adBreak() below simply
+     resolves via its fallback and gameplay is unaffected. -->
+<script>
+   window.adsbygoogle = window.adsbygoogle || [];
+   var adBreak = adConfig = function(o) { adsbygoogle.push(o); };
+</script>
+<script src="game.js"></script>
+</body>
+</html>
