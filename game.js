@@ -300,8 +300,23 @@ function joystickEnd() {
   joystickActive = false; joystickTouchId = null;
   joystickStick.style.transform = 'translate(-50%, -50%)';
   Input.dirX = 0; Input.dirY = 0;
+  // Return the floating base to its default corner spot
+  joystickZone.classList.remove('floating');
+  joystickZone.style.left = ''; joystickZone.style.top = '';
 }
-joystickZone.addEventListener('touchstart', (e) => { e.preventDefault(); const t = e.changedTouches[0]; joystickStart(t.clientX, t.clientY, t.identifier); }, { passive: false });
+// PUBG-style floating joystick: wherever the finger lands during play,
+// the joystick base/handle snaps to that exact point.
+window.addEventListener('touchstart', (e) => {
+  if (joystickActive || Game.state !== 'playing') return;
+  if (!document.getElementById('touchControls').classList.contains('visible')) return;
+  if (e.target.closest('button')) return; // pause / shield boost taps keep working
+  const t = e.changedTouches[0];
+  e.preventDefault();
+  joystickZone.classList.add('floating');
+  joystickZone.style.left = t.clientX + 'px';
+  joystickZone.style.top = t.clientY + 'px';
+  joystickStart(t.clientX, t.clientY, t.identifier);
+}, { passive: false });
 // touchmove on window so stick still tracks if finger slides outside the zone
 window.addEventListener('touchmove', (e) => {
   if (!joystickActive) return;
