@@ -442,6 +442,11 @@ button {
   pointer-events: auto;
   touch-action: none;
 }
+.joystick-zone.floating {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  z-index: 30;
+}
 .joystick-base {
   width: 130px;
   height: 130px;
